@@ -1,0 +1,69 @@
+{% load static %}
+
+<!-- JavaScript Libraries -->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'shop/lib/easing/easing.min.js' %}"></script>
+<script src="{% static 'shop/lib/owlcarousel/owl.carousel.min.js' %}"></script>
+
+<!-- Contact Javascript File -->
+<script src="{% static 'shop/mail/jqBootstrapValidation.min.js' %}"></script>
+<script src="{% static 'shop/mail/contact.js' %}"></script>
+
+<!-- Template Javascript -->
+<script src="{% static 'shop/js/main.js' %}"></script>
+<script src="{% static 'shop/js/custom.js' %}"></script>
+
+
+<script>
+    function showToast(message, title = "Notification") {
+        var toastId = 'toast-' + Math.random().toString(36).substring(2, 9);
+
+        var toastHTML = `
+        <div id="${toastId}" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="max-height: 45px; background-color: #e2eaf7">
+            <div class="toast-content">
+                ${title}: ${message}
+            </div>
+        </div>`;
+
+        document.getElementById('toast-container').insertAdjacentHTML('beforeend', toastHTML);
+
+        // Remove toast after a few seconds
+        setTimeout(() => {
+            document.getElementById(toastId).remove();
+        }, 3000);
+    }
+
+
+    function updateCart(event, action, productId) {
+        event.preventDefault();
+
+        var url = '/cart/' + productId + '/' + action + '/';
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const btn_minus = document.getElementById('btn_minus');
+
+                    if (action === 'remove' && data.message === "Cartdan o'chirildi") {
+                        btn_minus.disabled = true;
+                    } else if (action === 'remove') {
+                        btn_minus.disabled = false;
+                    }
+
+                    console.log(data.message);
+
+                    showToast(data.message);
+
+                    document.getElementById('cart-count_top').innerText = Object.keys(data.cart).length;
+                    document.getElementById('cart-count_nav').innerText = Object.keys(data.cart).length;
+                }
+            })
+            .catch(error => console.log('Error:', error));
+    }
+</script>
